@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta http-equiv="refresh" content="0;url=work-tracker-pwa/">
+  <title>Opening Work Tracker…</title>
+</head>
+<body>
+  <p>Opening Work Tracker…</p>
+  <script>
+    // The application currently lives in /work-tracker-pwa/.
+    // Preserve query parameters so the iPhone Shortcut toggle still works.
+    const base = location.pathname.replace(/\/?$/, "/");
+    location.replace(base + "work-tracker-pwa/" + location.search + location.hash);
+  </script>
+  <noscript><a href="work-tracker-pwa/">Open Work Tracker</a></noscript>
+</body>
+</html>
