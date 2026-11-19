@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#172033">
+  <meta name="description" content="Private, local-first work hours tracker">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="stylesheet" href="styles.css">
+  <title>Work Tracker</title>
+</head>
+<body>
+  <header class="topbar">
+    <div><div class="eyebrow">PERSONAL</div><h1>Work Tracker</h1></div>
+    <button id="installBtn" class="quiet hidden" type="button">Install</button>
+  </header>
+  <main>
+    <section class="hero card">
+      <div class="status-line"><span id="statusDot" class="dot"></span><span id="timerStatus">Not checked in</span></div>
+      <div id="liveTimer" class="timer">--:--:--</div>
+      <div class="hero-actions">
+        <button id="toggleBtn" class="primary" type="button">Check in</button>
+        <button id="quickBreakBtn" class="secondary" type="button">End session</button>
+      </div>
+      <p id="todaySummary" class="muted">Today's recorded work: 0h 00m</p>
+    </section>
+
+    <nav class="tabs" aria-label="Main navigation">
+      <button class="tab active" data-tab="overview">Overview</button>
+      <button class="tab" data-tab="sessions">Sessions</button>
+      <button class="tab" data-tab="planner">Weekly planner</button>
+      <button class="tab" data-tab="settings">Settings & data</button>
+    </nav>
+
+    <section id="overviewPanel" class="panel">
+      <div class="section-heading"><div><div class="eyebrow">THIS WEEK</div><h2>Weekly balance</h2></div><span id="weekRange" class="muted"></span></div>
+      <div class="stats-grid">
+        <div class="stat card"><span>Worked</span><strong id="weekWorked">0h 00m</strong></div>
+        <div class="stat card"><span>Holiday credit</span><strong id="weekHoliday">0h 00m</strong></div>
+        <div class="stat card"><span>Credited total</span><strong id="weekCredited">0h 00m</strong></div>
+        <div class="stat card"><span>Balance</span><strong id="weekBalance">0h 00m</strong></div>
+      </div>
+      <div class="card compact"><div class="section-heading"><h3>Daily progress</h3><span class="muted">8h target</span></div><div id="dailyProgress" class="daily-progress"></div></div>
+      <div class="section-heading"><h2>Recent sessions</h2><button class="text-button" data-go="sessions">View all</button></div>
+      <div id="recentSessions" class="list card"></div>
+    </section>
+
+    <section id="sessionsPanel" class="panel hidden">
+      <div class="section-heading"><div><div class="eyebrow">RECORDS</div><h2>Sessions</h2></div><button id="addSessionBtn" class="secondary small">Add session</button></div>
+      <div id="sessionList" class="list card"></div>
+      <div id="sessionEditor" class="card editor hidden">
+        <h3 id="sessionEditorTitle">Add session</h3>
+        <form id="sessionForm">
+          <input type="hidden" id="sessionId">
+          <label>Date<input id="sessionDate" type="date" required></label>
+          <div class="two-col"><label>Start<input id="sessionStart" type="time" required></label><label>End<input id="sessionEnd" type="time"></label></div>
+          <div class="two-col"><label>Lunch deduction (minutes)<input id="sessionLunch" type="number" min="0" step="1" value="0"></label><label>Status<select id="sessionStatus"><option value="Pending">Pending</option><option value="Confirmed">Confirmed</option></select></label></div>
+          <label>Location<select id="sessionLocation"><option>Office</option><option>Home</option><option>Other</option></select></label>
+          <label>Notes<textarea id="sessionNotes" rows="2"></textarea></label>
+          <div class="form-actions"><button type="button" id="cancelSession" class="secondary">Cancel</button><button type="submit" class="primary">Save session</button></div>
+          <button type="button" id="deleteSession" class="danger-link hidden">Delete session</button>
+        </form>
+      </div>
+    </section>
+
+    <section id="plannerPanel" class="panel hidden">
+      <div class="section-heading"><div><div class="eyebrow">MONDAY–FRIDAY</div><h2>Weekly planner</h2></div><div class="week-nav"><button id="prevWeek" class="icon-btn" aria-label="Previous week">‹</button><button id="nextWeek" class="icon-btn" aria-label="Next week">›</button></div></div>
+      <div id="plannerRows" class="planner card"></div>
+      <div class="card compact"><h3>Weekly calculation</h3><div id="plannerTotals"></div><p class="muted small-note">Actual work and paid holiday credits are shown separately. Only confirmed holiday credits count toward the target.</p></div>
+      <div class="card compact">
+        <h3>Add paid holiday credit</h3>
+        <form id="holidayForm" class="inline-form"><label>Date<input id="holidayDate" type="date" required></label><label>Hours<input id="holidayHours" type="number" min="0" max="24" step="0.25" value="8" required></label><button class="secondary" type="submit">Add credit</button></form>
+        <div id="holidayList" class="list"></div>
+      </div>
+    </section>
+
+    <section id="settingsPanel" class="panel hidden">
+      <div class="section-heading"><div><div class="eyebrow">PREFERENCES</div><h2>Settings & data</h2></div></div>
+      <div class="card compact">
+        <h3>Work schedule</h3>
+        <div class="two-col"><label>Weekly target (hours)<input id="weeklyTarget" type="number" min="1" max="100" step="0.25"></label><label>Daily target (hours)<input id="dailyTarget" type="number" min="1" max="24" step="0.25"></label></div>
+        <p class="muted small-note">Dates and times follow this device’s local timezone. Keep your iPhone and computer set to Eastern Time.</p>
+        <div class="schedule-grid" id="scheduleGrid"></div>
+        <button id="saveSettings" class="primary">Save settings</button>
+      </div>
+      <div class="card compact">
+        <h3>Backup & restore</h3>
+        <p class="muted">Your records are stored on this device in this browser. Export a JSON backup regularly, especially before clearing browser data or changing devices.</p>
+        <div class="stack-actions"><button id="exportJson" class="secondary">Download JSON backup</button><button id="importJsonBtn" class="secondary">Restore from JSON backup</button><input id="importJson" type="file" accept="application/json,.json" class="hidden"></div>
+        <button id="exportCsv" class="text-button">Export sessions as CSV</button>
+        <div id="dataMessage" class="muted small-note" role="status"></div>
+      </div>
+      <div class="card compact">
+        <h3>Privacy & storage</h3>
+        <p class="muted">No account, analytics, or external database is used. The app stores records in IndexedDB on this device. GitHub Pages hosts only the app files, not your work records.</p>
+        <p class="muted small-note" id="storageInfo"></p>
+      </div>
+    </section>
+  </main>
+  <footer>Local-first · Works offline after first load · Keep your backups safe</footer>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="app.js"></script>
+</body>
+</html>
